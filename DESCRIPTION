@@ -1,6 +1,6 @@
 Package: mpatools
 Title: mpatools - for analysis of marine protected areas
-Description: Tracking biodiversity across global mpas
+Description: Tracking biodiversity across global mpas.
 URL: https://github.com/BigelowLab/mpatools
 Version: 0.1
 Depends:
@@ -11,10 +11,11 @@ Imports:
     readr,
     wdpar,
     robis,
+    rappdirs,
     sf,
     vegan
-Maintainer: Johnathan Evanilla <jevanilla@bigelow.org>, Ben Tupper <btupper@bigelow.org>, 
+Maintainer: Johnathan Evanilla <jevanilla@bigelow.org>, Ben Tupper <btupper@bigelow.org>
 Author: Johnathan Evanilla <jevanilla@bigelow.org>, Ben Tupper <btupper@bigelow.org>, Natalie Posdaljian <nposdalj@ucsd.edu>
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
