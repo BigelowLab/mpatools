@@ -42,12 +42,23 @@ remotes::install_github("BigelowLab/mpatools")
 
 ## Polygons for MPAs 
 
-We use the [wdpar](https://CRAN.R-project.org/package=wdpar) R package to fetch MPAs by country (or 'global' for the complete dataset.)  By default, we store the files you download in the path returned by `rappdirs::user_data_dir("wdpar")` in [GeoPackage](https://www.geopackage.org/). Once you have downloaded format you can simply read the file from disk using `wdpa_read_country()`.
+We use the [wdpar](https://CRAN.R-project.org/package=wdpar) R package to fetch MPAs by country (or 'global' for the complete dataset.)  By default, we store the files you download in the path returned by `rappdirs::user_data_dir("wdpar")` in [GeoPackage](https://www.geopackage.org/). Once you have downloaded format you can simply read the file from disk using `read_mpa()`.
 
 ```{r fetch_country, message = FALSE}
 library(rappdirs)
 library(sf)
 library(mpatools)
-x <- wdpa_fetch_country(country = 'Cuba')
+x <- fetch_mpa(name = 'Cuba')
+# or if you already have the data
+# x <- read_mpa(name = "Cuba")
 plot(sf::st_geometry(x))
+```
+
+## OBIS occurrence data
+
+We use the [robis](https://cran.r-project.org/web/packages/robis/index.html) R package to fetch occurrence data.  By default we store files you downlaod in the path returned by `rappdirs::user_data_dir("robis")` in [GeoPackage](https://www.geopackage.org/). Once you have downloaded format you can simply read the file from disk using `read_obis()`. 
+
+```{r fetch_obis}
+obis <- fetch_obis(x) %>%
+        write_obis("Cuba", overwrite = TRUE)
 ```
