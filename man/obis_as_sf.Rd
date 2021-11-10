@@ -4,12 +4,14 @@
 \alias{obis_as_sf}
 \title{Cast an OBIS data frame as a simple feature (POINT)}
 \usage{
-obis_as_sf(x, ...)
+obis_as_sf(x, crs = c(NA, wdpa_cleaned_crs("wkt"))[2], ...)
 }
 \arguments{
 \item{x}{tibble of OBIS data}
 
-\item{...}{other arguments for \code{\link[sf]{st_as_sf}} - note \code{crs} argument}
+\item{...}{other arguments for \code{\link[sf]{st_as_sf}}}
+
+\item{transform_crs}{WKT, by default wdpa_cleaned_crs("wkt")}
 }
 \value{
 sf object (POINT)

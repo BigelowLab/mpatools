@@ -37,10 +37,15 @@ obis_strict_match <- function(obs = read_obis("Cuba"),
 #' Cast an OBIS data frame as a simple feature (POINT)
 #'
 #' @param x tibble of OBIS data
-#' @param ... other arguments for \code{\link[sf]{st_as_sf}} - note \code{crs} argument
+#' @param transform_crs WKT, by default wdpa_cleaned_crs("wkt")
+#' @param ... other arguments for \code{\link[sf]{st_as_sf}}
 #' @return sf object (POINT)
-obis_as_sf <- function(x, ...){
-  sf::st_as_sf(x, coords = c("decimalLongitude", "decimalLatitude"), ...)
+obis_as_sf <- function(x,
+                       crs = c(NA, wdpa_cleaned_crs("wkt"))[2],
+                       ...){
+  x <- sf::st_as_sf(x, coords = c("decimalLongitude", "decimalLatitude"), ...)
+  if (!is.na(crs)) x <- sf::st_transform(x, crs)
+  x
 }
 
 
@@ -94,6 +99,12 @@ fetch_obis <- function(x = read_wdpa_country("Cuba"),
 fetch_obis_country <- function(name = "Cuba",
                            overwrite = TRUE,
                            ...){
+                             
+  #if(!dir.exists(path)){
+  #  ok <- dir.create(path, showWarnings = FALSE, recursive = TRUE)
+  #  if(!dir.exists(path)) stop("wpdar output path doesn't exist:", path)
+  #}
+  
   mpa <- try(read_mpa(name))
   if (inherits(mpa, 'try-error')) stop("you must provide an mpa")
 
@@ -108,14 +119,21 @@ fetch_obis_country <- function(name = "Cuba",
 #' @param name character, the name of the dataset
 #' @param path character, the output path.  We default to that specified by
 #'  \code{\link[rappdirs]{user_data_dir}}
-#' @return data table
+#' @param form chracter, either 'table' (default) or 'sf'
+#' @param ... further arguments for \code{\link{obis_as_sf}} in piarricular \code{crs}
+#' @return data table or sf object
 read_obis <- function(name = "Cuba",
-                      path = rappdirs::user_data_dir("robis")){
+                      path = rappdirs::user_data_dir("robis"),
+                      form  = c("table", "sf")[1],
+                      ...){
   filename <- file.path(path, sprintf("%s.csv.gz", name))
   if (!file.exists(filename)){
     stop("file not found:", filename)
   }
-  readr::read_csv(filename)
+  x <- readr::read_csv(filename)
+  if (tolower(form[1]) == "sf"){
+    x <- obis_as_sf(x, ...)
+  }
 }
 
 #' Write an OBIS table to csv
