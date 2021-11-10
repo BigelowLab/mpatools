@@ -57,7 +57,10 @@ fetch_mpa <- function(name = 'Cuba',
                          wait = TRUE,
                          download_dir = tempdir(),
                          ...)
-  if (clean) x <- wdpar::wdpa_clean(x)
+
+  if (clean)  x <- wdpar::wdpa_clean(x) %>%
+    sf::st_transform("EPSG:4326")
+
   y <- sf::write_sf(x, file.path(path, paste0(name[1], ext[1])),
                delete_dsn = overwrite)
   return(x)
@@ -83,6 +86,19 @@ read_mpa <- function(name = 'Cuba',
   filename <- file.path(path, paste0(name[1], ext[1]))
   if (!file.exists(filename[1])) stop("file not found: ", filename[1])
   sf::read_sf(filename[1])
+  
 }
 
 
+#' Retrieve the projected CRS for WDPA cleaned (ESRI:54017) data
+#'
+#' @export
+#' @param form character one of 'proj4string', 'epsg', or 'wkt'
+#' @return character
+wdpa_cleaned_crs <- function(form = c('proj4string', 'epsg', 'wkt')[3]){
+
+  switch(tolower(form[1]),
+         'epsg' = 'ESRI:54017',
+         'proj4string' = "+proj=cea +lat_ts=30 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
+         "PROJCS[\"unknown\",\n    GEOGCS[\"unknown\",\n        DATUM[\"WGS_1984\",\n            SPHEROID[\"WGS 84\",6378137,298.257223563],\n            AUTHORITY[\"EPSG\",\"6326\"]],\n        PRIMEM[\"Greenwich\",0,\n            AUTHORITY[\"EPSG\",\"8901\"]],\n        UNIT[\"degree\",0.0174532925199433]],\n    PROJECTION[\"Cylindrical_Equal_Area\"],\n    PARAMETER[\"standard_parallel_1\",30],\n    PARAMETER[\"central_meridian\",0],\n    PARAMETER[\"false_easting\",0],\n    PARAMETER[\"false_northing\",0],\n    UNIT[\"metre\",1,\n        AUTHORITY[\"EPSG\",\"9001\"]],\n    AXIS[\"Easting\",EAST],\n    AXIS[\"Northing\",NORTH]]")
+}

@@ -4,16 +4,25 @@
 \alias{read_obis}
 \title{Read an OBIS country file}
 \usage{
-read_obis(name = "Cuba", path = rappdirs::user_data_dir("robis"))
+read_obis(
+  name = "Cuba",
+  path = rappdirs::user_data_dir("robis"),
+  form = c("table", "sf")[1],
+  ...
+)
 }
 \arguments{
 \item{name}{character, the name of the dataset}
 
 \item{path}{character, the output path.  We default to that specified by
 \code{\link[rappdirs]{user_data_dir}}}
+
+\item{form}{chracter, either 'table' (default) or 'sf'}
+
+\item{...}{further arguments for \code{\link{obis_as_sf}} in piarricular \code{crs}}
 }
 \value{
-data table
+data table or sf object
 }
 \description{
 Read an OBIS country file
