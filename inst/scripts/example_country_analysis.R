@@ -2,7 +2,6 @@
 
 devtools::load_all()
 
-
 country <- "Belgium"
 
 ages <- c(-20, 0, 20)
@@ -29,6 +28,4 @@ xx <- mpa %>%
   dplyr::group_map(es50_base, .keep=TRUE) %>% 
   #dplyr::group_map(es50_timeblock, ages, .keep=TRUE) %>% 
   dplyr::bind_rows()
-
-future::doparallel()
 
