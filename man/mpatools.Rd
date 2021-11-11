@@ -4,3 +4,6 @@
 \name{mpatools}
 \alias{mpatools}
 \title{mpatools: Tools for analysis of marine protected areas}
+\description{
+Functions for reading mpa and obis data; calculating biodiversity performance metrics
+}
