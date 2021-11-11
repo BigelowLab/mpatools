@@ -6,6 +6,7 @@ Version: 0.1
 Depends:
     R (>= 4.0)
 Imports:
+    stats, 
     rlang,
     dplyr,
     readr,

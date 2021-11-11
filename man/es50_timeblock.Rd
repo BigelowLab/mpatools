@@ -4,14 +4,16 @@
 \alias{es50_timeblock}
 \title{Calculate es50 metric for an mpa for specific time points}
 \usage{
-es50_timeblock(mpa, age, step)
+es50_timeblock(mpa, key, records, age, step_size)
 }
 \arguments{
 \item{mpa}{a row from wdpa table containing one mpa with metadata and geometry column}
 
-\item{age}{numeric, age to compute es50 for}
+\item{key}{the wdpaid of the mpa}
 
 \item{records}{an object containing obis records}
+
+\item{age}{numeric, age to compute es50 for}
 
 \item{step_size}{numeric of years in each step of analysis}
 }

@@ -37,7 +37,7 @@ obis_strict_match <- function(obs = read_obis("Cuba"),
 #' Cast an OBIS data frame as a simple feature (POINT)
 #'
 #' @param x tibble of OBIS data
-#' @param transform_crs WKT, by default wdpa_cleaned_crs("wkt")
+#' @param crs WKT, by default wdpa_cleaned_crs("wkt") or NA to skip
 #' @param ... other arguments for \code{\link[sf]{st_as_sf}}
 #' @return sf object (POINT)
 obis_as_sf <- function(x,
@@ -57,8 +57,8 @@ obis_as_sf <- function(x,
 #'    If "convex hull" then we allow these to be returned.  If "strict" then we filter for those observations that are in
 #'    the MPAs (in mean within or on the boundary).
 #' @return tibble of OBIS observations, possibly empty
-fetch_obis <- function(x = read_wdpa_country("Cuba"),
-                           policy = c("convex hull", "strict")[1]) {
+fetch_obis <- function(x = read_mpa("Cuba"),
+                       policy = c("convex hull", "strict")[1]) {
 
 
   # Fetch one row (one MPA)
@@ -91,19 +91,14 @@ fetch_obis <- function(x = read_wdpa_country("Cuba"),
 #'
 #' No error checking is done to ensure the country folderand WDPA file
 #'
-#' @param mpa POLYGON or MULTIPOLYGON as sf
+#' @param name character, the name of the country to fetch
 #' @param name character, the name to save the MPA under (no spaces please!)
-#' @param save_file logical, if TRUE save into the country's data folder
+#' @param overwrite logical, if TRUE allow existing files to be overwritten
 #' @param ... other arguments for obis_fetch_mpa
 #' @return tibble of OBIS observations, possibly empty
 fetch_obis_country <- function(name = "Cuba",
                            overwrite = TRUE,
-                           ...){
-                             
-  #if(!dir.exists(path)){
-  #  ok <- dir.create(path, showWarnings = FALSE, recursive = TRUE)
-  #  if(!dir.exists(path)) stop("wpdar output path doesn't exist:", path)
-  #}
+                           ...){       
   
   mpa <- try(read_mpa(name))
   if (inherits(mpa, 'try-error')) stop("you must provide an mpa")
@@ -117,7 +112,7 @@ fetch_obis_country <- function(name = "Cuba",
 #' Read an OBIS country file
 #'
 #' @param name character, the name of the dataset
-#' @param path character, the output path.  We default to that specified by
+#' @param path character, the input path.  We default to that specified by
 #'  \code{\link[rappdirs]{user_data_dir}}
 #' @param form chracter, either 'table' (default) or 'sf'
 #' @param ... further arguments for \code{\link{obis_as_sf}} in piarricular \code{crs}
@@ -140,13 +135,20 @@ read_obis <- function(name = "Cuba",
 #'
 #' @param x OBIS table of data
 #' @param name character the name to save the dataset under (no spaces please!)
+#' @param path character, the output path.  We default to that specified by
+#'  \code{\link[rappdirs]{user_data_dir}} 
 #' @param overwrite logical, if TRUE allow existing files to be overwritten
 #' @return the input data table
 write_obis <- function(x, name,
                        path = rappdirs::user_data_dir("robis"),
                        overwrite = FALSE){
 
-  ofile <- file.path(path, sprintf("%s.csv.gz", name))
+  if(!dir.exists(path)){
+    ok <- dir.create(path, showWarnings = FALSE, recursive = TRUE)
+    if(!dir.exists(path)) stop("robis output path doesn't exist:", path)
+  }
+
+  filename <- file.path(path, sprintf("%s.csv.gz", name))
   if (file.exists(filename) && overwrite == FALSE){
     stop("file already exists:", filename)
   }

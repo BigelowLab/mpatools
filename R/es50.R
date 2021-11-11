@@ -1,9 +1,7 @@
-
-
-
 #' Record number of records and attempt an overall es50 calculation
 #' 
 #' @param mpa a single row of an mpa records table
+#' @param key the wdpaid of the mpa 
 #' @param records an object containing obis records
 #' @return the same mpa row with total_records, total_phyla, total_species, es50_overall
 #' 
@@ -11,9 +9,9 @@
 es50_base <- function(mpa, key, records) {
   
   #either get obis records from robis or filter records object within mpa
-  records <- robis::occurrence(geometry = st_as_text(st_convex_hull(mpa$geom)))
+  records <- robis::occurrence(geometry = sf::st_as_text(sf::st_convex_hull(mpa$geom)))
   
-  if (!is_empty(records)) {
+  if (!rlang::is_empty(records)) {
     
     if ("individualCount" %in% colnames(species_occurence)) {
       
@@ -55,13 +53,14 @@ es50_base <- function(mpa, key, records) {
 #' Calculate es50 metric for an mpa for specific time points
 #' 
 #' @param mpa a row from wdpa table containing one mpa with metadata and geometry column
+#' @param key the wdpaid of the mpa 
 #' @param records an object containing obis records
 #' @param age numeric, age to compute es50 for
 #' @param step_size numeric of years in each step of analysis
 #' @return single row table containing same columns as mpa but with added timeblock columns
 #' 
 #' @export
-es50_timeblock <- function(mpa, age, step) {
+es50_timeblock <- function(mpa, key, records, age, step_size) {
   
   if ((mpa$STATUS_YR + age) > format(as.Date(Sys.Date()), format="%Y")) {
     cat(paste(mpa$WDPAID, "MPA is too young, age:", age, "\n", sep=" "))

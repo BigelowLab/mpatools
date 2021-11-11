@@ -4,10 +4,12 @@
 \alias{es50_base}
 \title{Record number of records and attempt an overall es50 calculation}
 \usage{
-es50_base(mpa, records)
+es50_base(mpa, key, records)
 }
 \arguments{
 \item{mpa}{a single row of an mpa records table}
+
+\item{key}{the wdpaid of the mpa}
 
 \item{records}{an object containing obis records}
 }
