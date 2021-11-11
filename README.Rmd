@@ -42,7 +42,7 @@ remotes::install_github("BigelowLab/mpatools")
 
 ## Polygons for MPAs 
 
-We use the [wdpar](https://CRAN.R-project.org/package=wdpar) R package to fetch MPAs by country (or 'global' for the complete dataset.)  By default, we store the files you download in the path returned by `rappdirs::user_data_dir("wdpar")` in [GeoPackage](https://www.geopackage.org/). Once you have downloaded format you can simply read the file from disk using `read_mpa()`.
+We use the [wdpar](https://CRAN.R-project.org/package=wdpar) R package to fetch MPAs by country (or 'global' for the complete dataset.)  By default, we store the files you download in the path returned by `rappdirs::user_data_dir("wdpar")` in [GeoPackage](https://www.geopackage.org/) format. Once you have downloaded a dataset you can simply read the file from disk using `read_mpa("name")`.
 
 ```{r fetch_country, message = FALSE}
 library(rappdirs)
@@ -56,9 +56,19 @@ plot(sf::st_geometry(x))
 
 ## OBIS occurrence data
 
+Once you have MPA polygons in hand, it is easy to request OBIS records that fall within the polygons. 
 We use the [robis](https://cran.r-project.org/web/packages/robis/index.html) R package to fetch occurrence data.  By default we store files you downlaod in the path returned by `rappdirs::user_data_dir("robis")` in [GeoPackage](https://www.geopackage.org/). Once you have downloaded format you can simply read the file from disk using `read_obis()`. 
 
 ```{r fetch_obis}
 obis <- fetch_obis(x) %>%
         write_obis("Cuba", overwrite = TRUE)
+# or if you already have the data
+#obis <- read_obis("Cuba")
 ```
+
+We actually find occurrences that fall within the convex hull of a set of polygons, but you can enforce a stricter policy using the `policy` argument for `fetch_obis()`.  See `?fetch_obis`.
+
+## Where are MPAs and OBIS data stored?
+
+We use [rappsdir](https://CRAN.R-project.org/package=rappsdir) R package to manage the stirage location.  We store data here `rappdirs::user_data_dir("wdpar")` and here `rappdirs::user_data_dir("robis")`. This is a very effective way to store data **per user**.  But if you want to store data at a system-wide location you can do that using the ubiquitous `path` argument.
+

@@ -1,21 +1,41 @@
-#' Given a set of MPAs and observations,
-#' determine which observations belong to which MPA
+#' Generate a sf object of random points within and around a set of polygons.
+#' 
+#' Polygons are expanded by \code{buffer}, and then samples are drawn from
+#' those.  See \code{\link[sf]{st_buffer}}
+#' 
+#' @param x sf object of polygons
+#' @param buffer numeric See \code{\link[sf]{st_buffer}}
+#' @param n integer, the number of points
+#' @return a sf object of n points
+random_points <- function(x = read_mpa("Cuba"),
+                          buffer = 0.1,
+                          n = 1000){
+  
+  pts <- suppressMessages(suppressWarnings(sf::st_buffer(x, dist = buffer) %>%
+                            sf::st_sample(size = n)))
+  return(pts)
+}
+
+
+#' Given a set of MPAs and observations determine which observations belong to which MPA
 #'
 #' @param mpa sf object of MPA polygons
 #' @param obs sf object of observation points
-#' @param ... other arguments for \code{\link[sf{st_intersects}}
+#' @param ... other arguments for \code{\link[sf]{st_intersects}}
 #' @return a list of match vectors by index. If obs has 1000 points
 #'   then a 1000 length list of integer vectors is returned where each
 #'   vector has zero or more integers indicating which mpa polygon each
 #'   belongs to. For example, the first 3 points below do not intersect
 #'   any polygons, while the 4th intersects with 3 polygons and the
 #'   the 5th intersects with just one.
-#'    $ : int(0)
-#'    $ : int(0)
-#'    $ : int(0)
-#'    $ : int [1:3] 42 71 177
-#'    $ : int 40
-mpa_match <- function(mpa = mpa_read("Cuba"),
+#'  \itemize{
+#'    \item{ 1 int(0)}
+#'    \item{ 2 int(0)}
+#'    \item{ 3 int(0)}
+#'    \item{ 4 int [1:3] 42 71 177}
+#'    \item{ 5 int 40}
+#'  }
+mpa_match <- function(mpa = read_mpa("Cuba"),
                       obs = random_points(mpa),
                       ...){
 

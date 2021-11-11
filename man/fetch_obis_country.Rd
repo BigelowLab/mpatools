@@ -9,11 +9,9 @@ fetch_obis_country(name = "Cuba", overwrite = TRUE, ...)
 \arguments{
 \item{name}{character, the name to save the MPA under (no spaces please!)}
 
+\item{overwrite}{logical, if TRUE allow existing files to be overwritten}
+
 \item{...}{other arguments for obis_fetch_mpa}
-
-\item{mpa}{POLYGON or MULTIPOLYGON as sf}
-
-\item{save_file}{logical, if TRUE save into the country's data folder}
 }
 \value{
 tibble of OBIS observations, possibly empty

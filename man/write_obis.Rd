@@ -11,6 +11,9 @@ write_obis(x, name, path = rappdirs::user_data_dir("robis"), overwrite = FALSE)
 
 \item{name}{character the name to save the dataset under (no spaces please!)}
 
+\item{path}{character, the output path.  We default to that specified by
+\code{\link[rappdirs]{user_data_dir}}}
+
 \item{overwrite}{logical, if TRUE allow existing files to be overwritten}
 }
 \value{

@@ -9,9 +9,9 @@ obis_as_sf(x, crs = c(NA, wdpa_cleaned_crs("wkt"))[2], ...)
 \arguments{
 \item{x}{tibble of OBIS data}
 
-\item{...}{other arguments for \code{\link[sf]{st_as_sf}}}
+\item{crs}{WKT, by default wdpa_cleaned_crs("wkt") or NA to skip}
 
-\item{transform_crs}{WKT, by default wdpa_cleaned_crs("wkt")}
+\item{...}{other arguments for \code{\link[sf]{st_as_sf}}}
 }
 \value{
 sf object (POINT)
