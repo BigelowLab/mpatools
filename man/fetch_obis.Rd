@@ -4,10 +4,7 @@
 \alias{fetch_obis}
 \title{Given a simple features tibble (POLYGON or MUTLIPOLYGON), retrieve OBIS observation records.}
 \usage{
-fetch_obis(
-  x = read_wdpa_country("Cuba"),
-  policy = c("convex hull", "strict")[1]
-)
+fetch_obis(x = read_mpa("Cuba"), policy = c("convex hull", "strict")[1])
 }
 \arguments{
 \item{x}{MPA sf object such as for a country}

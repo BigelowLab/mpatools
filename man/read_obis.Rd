@@ -14,7 +14,7 @@ read_obis(
 \arguments{
 \item{name}{character, the name of the dataset}
 
-\item{path}{character, the output path.  We default to that specified by
+\item{path}{character, the input path.  We default to that specified by
 \code{\link[rappdirs]{user_data_dir}}}
 
 \item{form}{chracter, either 'table' (default) or 'sf'}

@@ -11,9 +11,9 @@
 es50_base <- function(mpa, key, records) {
   
   #either get obis records from robis or filter records object within mpa
-  records <- robis::occurrence(geometry = st_as_text(st_convex_hull(mpa$geom)))
+  records <- robis::occurrence(geometry = sf::st_as_text(sf::st_convex_hull(mpa$geom)))
   
-  if (!is_empty(records)) {
+  if (!rlang::is_empty(records)) {
     
     if ("individualCount" %in% colnames(species_occurence)) {
       

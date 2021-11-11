@@ -2,17 +2,16 @@
 % Please edit documentation in R/mpa.R
 \name{mpa_match}
 \alias{mpa_match}
-\title{Given a set of MPAs and observations,
-determine which observations belong to which MPA}
+\title{Given a set of MPAs and observations determine which observations belong to which MPA}
 \usage{
-mpa_match(mpa = mpa_read("Cuba"), obs = random_points(mpa), ...)
+mpa_match(mpa = read_mpa("Cuba"), obs = random_points(mpa), ...)
 }
 \arguments{
 \item{mpa}{sf object of MPA polygons}
 
 \item{obs}{sf object of observation points}
 
-\item{...}{other arguments for \code{\link[sf{st_intersects}}}
+\item{...}{other arguments for \code{\link[sf]{st_intersects}}}
 }
 \value{
 a list of match vectors by index. If obs has 1000 points
@@ -21,13 +20,14 @@ a list of match vectors by index. If obs has 1000 points
   belongs to. For example, the first 3 points below do not intersect
   any polygons, while the 4th intersects with 3 polygons and the
   the 5th intersects with just one.
-   $ : int(0)
-   $ : int(0)
-   $ : int(0)
-   $ : int [1:3] 42 71 177
-   $ : int 40
+ \itemize{
+   \item{ 1 int(0)}
+   \item{ 2 int(0)}
+   \item{ 3 int(0)}
+   \item{ 4 int [1:3] 42 71 177}
+   \item{ 5 int 40}
+ }
 }
 \description{
-Given a set of MPAs and observations,
-determine which observations belong to which MPA
+Given a set of MPAs and observations determine which observations belong to which MPA
 }
