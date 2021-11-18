@@ -6,10 +6,12 @@ Version: 0.1
 Depends:
     R (>= 4.0)
 Imports:
+    utils, 
     stats, 
     rlang,
     dplyr,
     readr,
+    data.table, 
     wdpar,
     robis,
     rappdirs,
