@@ -22,7 +22,7 @@ downlaod the global dataset using \code{global}.}
 
 \item{ext}{character, the file extension, by default we use ".gpkg"}
 
-\item{clean}{logical, if TRUE run the resut through \code{\link[wdpar]{wdpa_clean}}}
+\item{clean}{logical, if TRUE run the result through \code{\link[wdpar]{wdpa_clean}}}
 
 \item{overwrite}{logical, if TRUE overwrite exisiting datasets}
 

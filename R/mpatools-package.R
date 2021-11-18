@@ -6,6 +6,7 @@
 #' @importFrom dplyr %>%
 #' @importFrom rlang .data !! :=
 #' @importFrom stats complete.cases sd aggregate
+#' @importFrom utils glob2rx
 #' @name mpatools
 #' @aliases mpatools
 NULL

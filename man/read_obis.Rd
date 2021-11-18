@@ -8,16 +8,19 @@ read_obis(
   name = "Cuba",
   path = rappdirs::user_data_dir("robis"),
   form = c("table", "sf")[1],
+  what = "all",
   ...
 )
 }
 \arguments{
 \item{name}{character, the name of the dataset}
 
-\item{path}{character, the input path.  We default to that specified by
-\code{\link[rappdirs]{user_data_dir}}}
+\item{path}{character, the input path.  We default to that specified by \code{\link[rappdirs]{user_data_dir}}}
 
-\item{form}{chracter, either 'table' (default) or 'sf'}
+\item{form}{character, either 'table' (default) or 'sf'}
+
+\item{what}{character, by default all values are returned, but specify a subset with
+a character vector of desired columns (variables)}
 
 \item{...}{further arguments for \code{\link{obis_as_sf}} in piarricular \code{crs}}
 }

@@ -1,8 +1,9 @@
 #' Generate a sf object of random points within and around a set of polygons.
-#' 
+#'
 #' Polygons are expanded by \code{buffer}, and then samples are drawn from
 #' those.  See \code{\link[sf]{st_buffer}}
-#' 
+#'
+#' @export
 #' @param x sf object of polygons
 #' @param buffer numeric See \code{\link[sf]{st_buffer}}
 #' @param n integer, the number of points
@@ -10,7 +11,7 @@
 random_points <- function(x = read_mpa("Cuba"),
                           buffer = 0.1,
                           n = 1000){
-  
+
   pts <- suppressMessages(suppressWarnings(sf::st_buffer(x, dist = buffer) %>%
                             sf::st_sample(size = n)))
   return(pts)
@@ -19,6 +20,7 @@ random_points <- function(x = read_mpa("Cuba"),
 
 #' Given a set of MPAs and observations determine which observations belong to which MPA
 #'
+#' @export
 #' @param mpa sf object of MPA polygons
 #' @param obs sf object of observation points
 #' @param ... other arguments for \code{\link[sf]{st_intersects}}
@@ -54,7 +56,7 @@ mpa_match <- function(mpa = read_mpa("Cuba"),
 #' @param path character, the output path.  We default to that specified by
 #'  \code{\link[rappdirs]{user_data_dir}}
 #' @param ext character, the file extension, by default we use ".gpkg"
-#' @param clean logical, if TRUE run the resut through \code{\link[wdpar]{wdpa_clean}}
+#' @param clean logical, if TRUE run the result through \code{\link[wdpar]{wdpa_clean}}
 #' @param overwrite logical, if TRUE overwrite exisiting datasets
 #' @param ... other arguments for , see \code{\link[wdpar]{wdpa_fetch}}
 #' @return sf table of protected areas
@@ -105,10 +107,26 @@ read_mpa <- function(name = 'Cuba',
                      ext = ".gpkg"){
   filename <- file.path(path, paste0(name[1], ext[1]))
   if (!file.exists(filename[1])) stop("file not found: ", filename[1])
-  sf::read_sf(filename[1])
-  
+  suppressMessages(sf::read_sf(filename[1]))
+
 }
 
+
+#' List the locally stored MPAs
+#'
+#' @export
+#' @param path the path to storage
+#' @param ext character, the file extension, by default we use ".gpkg"
+#' @param full_names logical, if TRUE return full filenames
+list_mpa <- function(path = rappdirs::user_data_dir("wdpar"),
+                     ext = ".gpkg",
+                     full_names = FALSE){
+  ff <- list.files(path, pattern = glob2rx(paste0("*", ext[1])), full.names = TRUE)
+  if (!full_names){
+    ff <- gsub(ext, "", basename(ff), fixed = TRUE)
+  }
+  ff
+}
 
 #' Retrieve the projected CRS for WDPA cleaned (ESRI:54017) data
 #'
