@@ -8,28 +8,29 @@
 #'
 #'
 es50_base <- function(mpa, key, records) {
+  
+  cat(key$WDPAID[1], "\n")
 
-  #either get obis records from robis or filter records object within mpa
   records <- robis::occurrence(geometry = sf::st_as_text(sf::st_convex_hull(mpa$geom)))
 
   if (!rlang::is_empty(records)) {
 
-    if ("individualCount" %in% colnames(species_occurence)) {
+    if ("individualCount" %in% colnames(records)) {
 
-      species_occurence$individualCount <- as.numeric(species_occurence$individualCount)
-      species_occurence$individualCount[is.na(species_occurence$individualCount)] <- 1
-      species_occurence$Count <- 1 * species_occurence$individualCount
+      records$individualCount <- as.numeric(records$individualCount)
+      records$individualCount[is.na(records$individualCount)] <- 1
+      records$Count <- 1 * records$individualCount
 
     } else {
-      species_occurence$Count <- 1
+      records$Count <- 1
     }
 
-    species_count <- aggregate(species_occurence$Count,
-                               by=list(Category=species_occurence$scientificName),
+    species_count <- aggregate(records$Count,
+                               by=list(Category=records$scientificName),
                                FUN=sum)
 
-    phylum_count <- aggregate(species_occurence$Count,
-                              by=list(Category=species_occurence$phylum),
+    phylum_count <- aggregate(records$Count,
+                              by=list(Category=records$phylum),
                               FUN=sum)
 
     mpa <- mpa %>%
@@ -47,6 +48,9 @@ es50_base <- function(mpa, key, records) {
     }
 
   }
+  
+  cat("\n")
+  
   return(mpa)
 }
 
