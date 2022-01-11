@@ -2,12 +2,12 @@
 
 devtools::load_all()
 
-country <- "Belgium"
+country <- "USA"
 
 ages <- c(-20, 0, 20)
 time_step <- 20
 
-#fetch_mpa(country)
+fetch_mpa(country)
 mpa <- read_mpa(country)
 
 
