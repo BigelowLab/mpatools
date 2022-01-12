@@ -59,7 +59,7 @@ mpa_match <- function(mpa = read_mpa("Cuba"),
 #' @param clean logical, if TRUE run the result through \code{\link[wdpar]{wdpa_clean}}
 #' @param overwrite logical, if TRUE overwrite exisiting datasets
 #' @param ... other arguments for , see \code{\link[wdpar]{wdpa_fetch}}
-#' @return sf table of protected areas
+#' @return sf table of protected areas or NULL if an error is encountered
 #' @examples
 #' \dontrun{
 #' x <- fetch_mpa(name = 'Cuba')
@@ -75,11 +75,20 @@ fetch_mpa <- function(name = 'Cuba',
     ok <- dir.create(path, showWarnings = FALSE, recursive = TRUE)
     if(!dir.exists(path)) stop("wpdar output path doesn't exist:", path)
   }
-  x <- wdpar::wdpa_fetch(name[1],
+  
+  x <- tryCatch(
+    {
+      wdpar::wdpa_fetch(name[1],
                          wait = TRUE,
                          download_dir = tempdir(),
                          ...)
-
+    },
+    error = function(e){
+      message("Error in fetch_mpa")
+      print(e)
+      return(NULL)
+    })
+  
   if (clean)  x <- wdpar::wdpa_clean(x) %>%
     sf::st_transform("EPSG:4326")
 
@@ -110,7 +119,39 @@ read_mpa <- function(name = 'Cuba',
   suppressMessages(sf::read_sf(filename[1]))
 
 }
+#' Determine the column that contains geometry in a table
+#' 
+#' If more than one column matches the pattern then just the first is returned.
+#' 
+#' @export
+#' @param x table of data
+#' @param form character either 'index' (default) or 'name'
+#' @param pattern character the regular expression pattern to search with
+which_geometry <- function(x,
+                           form = c("index", "character")[1],
+                           pattern = "^geom"){
+  cnames <- colnames(x)
+  ix <- grep(pattern, cnames)
+  if (tolower(form[1]) != "index"){
+    ix <- cnames[ix]
+  }
+  ix[1]
+} 
 
+#' Determine if the local storage contains a set of MPAs by name(s)
+#' 
+#' @export
+#' @param name character, the name(s) of the country or 'global' that you have previously
+#'  downloaded
+#' @param ... arguments for \code{list_mpa}
+#' @return one or more logicals as a named vector
+has_mpa <- function(name = c('Cuba', "Mongolia"),
+                    ...){
+  nn <- list_mpa(...)
+  ix <- name %in% nn
+  names(ix) <- name
+  ix
+}
 
 #' List the locally stored MPAs
 #'

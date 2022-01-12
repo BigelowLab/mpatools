@@ -4,7 +4,7 @@
 \alias{es50_base}
 \title{Record number of records and attempt an overall es50 calculation}
 \usage{
-es50_base(mpa, key, records)
+es50_base(mpa, key, records, verbose = interactive())
 }
 \arguments{
 \item{mpa}{a single row of an mpa records table}
@@ -12,9 +12,12 @@ es50_base(mpa, key, records)
 \item{key}{the wdpaid of the mpa}
 
 \item{records}{an object containing obis records}
+
+\item{verbose}{logical, if TRUE output helpful messages}
 }
 \value{
 the same mpa row with total_records, total_phyla, total_species, es50_overall
+ or NULL if an error occurs
 }
 \description{
 Record number of records and attempt an overall es50 calculation

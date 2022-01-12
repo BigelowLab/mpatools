@@ -16,8 +16,7 @@ Imports:
     robis,
     rappdirs,
     sf,
-    vegan,
-    prepr
+    vegan
 Maintainer: Johnathan Evanilla <jevanilla@bigelow.org>, Ben Tupper <btupper@bigelow.org>
 Author: Johnathan Evanilla <jevanilla@bigelow.org>, Ben Tupper <btupper@bigelow.org>, Natalie Posdaljian <nposdalj@ucsd.edu>
 License: MIT + file LICENSE

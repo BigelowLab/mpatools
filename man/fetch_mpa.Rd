@@ -29,7 +29,7 @@ downlaod the global dataset using \code{global}.}
 \item{...}{other arguments for , see \code{\link[wdpar]{wdpa_fetch}}}
 }
 \value{
-sf table of protected areas
+sf table of protected areas or NULL if an error is encountered
 }
 \description{
 Fetch MPA data by country from WDPA.  Be patient with this - it can take a while.

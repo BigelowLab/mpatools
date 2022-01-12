@@ -9,7 +9,7 @@ time_step <- 20
 # either read the locally stored dataset, or fetch if not stored locally
 country <- "USA"
 listing <- list_mpa()
-if (!(country %in% lisiting)) {
+if (!has_mpa(country)) {
   mpa <- fetch_mpa(country)
 } else {
   mpa <- read_mpa(country)
@@ -24,7 +24,7 @@ if (!(country %in% lisiting)) {
 # compute es_50 by group
 # bind results into one dataframe (one row per MPA)
 # drop the geometry to leave a bare table
-xx <- mpa %>% 
+x <- mpa %>% 
   head(5) %>%
   dplyr::select(WDPAID, 
                 NAME, 
@@ -32,9 +32,11 @@ xx <- mpa %>%
                 REP_AREA,
                 REP_M_AREA, 
                 STATUS, 
-                STATUS_YR, 
-                dplyr::starts_with("geom")) %>% 
-  dplyr::filter(sapply(dplyr::starts_with("geom"), function(x) inherits(x, "MULTIPOLYGON"))) %>% 
+                STATUS_YR)
+
+geom_ix <- which_geometry(x)
+x <- x %>%
+  dplyr::filter(sapply(x[[geom_ix]], function(x) inherits(x, "MULTIPOLYGON"))) %>% 
   dplyr::group_by(WDPAID) %>% 
   dplyr::group_map(es50_base, .keep=TRUE) %>% 
   #dplyr::group_map(es50_timeblock, ages, .keep=TRUE) %>% 

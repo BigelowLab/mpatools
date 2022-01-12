@@ -4,7 +4,7 @@
 \alias{es50_timeblock}
 \title{Calculate es50 metric for an mpa for specific time points}
 \usage{
-es50_timeblock(mpa, key, records, age, step_size)
+es50_timeblock(mpa, key, records, age, step_size, verbose = interactive())
 }
 \arguments{
 \item{mpa}{a row from wdpa table containing one mpa with metadata and geometry column}
@@ -16,6 +16,8 @@ es50_timeblock(mpa, key, records, age, step_size)
 \item{age}{numeric, age to compute es50 for}
 
 \item{step_size}{numeric of years in each step of analysis}
+
+\item{verbose}{logical, if TRUE output helpful messages}
 }
 \value{
 single row table containing same columns as mpa but with added timeblock columns
