@@ -127,6 +127,7 @@ es50_timeblock <- function(mpa, key, records, age, step_size, verbose = interact
 
       geom_ix <- which_geometry(mpa)
       
+      # see https://www.tidyverse.org/blog/2020/02/glue-strings-and-tidy-eval/
       mpa <- mpa %>%
         dplyr::mutate("es50_age_{age}"    := es_50,
                       "species_age_{age}" := nrow(species_counts),

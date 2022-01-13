@@ -7,14 +7,12 @@ ages <- c(-20, 0, 20)
 time_step <- 20
 
 # either read the locally stored dataset, or fetch if not stored locally
-country <- "USA"
-listing <- list_mpa()
+country <- "Cuba"
 if (!has_mpa(country)) {
   mpa <- fetch_mpa(country)
 } else {
   mpa <- read_mpa(country)
 }
-
 
 
 # for testing on a small number of mpas, skip for running the analysis on a whole country
