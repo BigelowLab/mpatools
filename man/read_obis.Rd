@@ -22,7 +22,7 @@ read_obis(
 \item{what}{character, by default all values are returned, but specify a subset with
 a character vector of desired columns (variables)}
 
-\item{...}{further arguments for \code{\link{obis_as_sf}} in piarricular \code{crs}}
+\item{...}{further arguments for \code{\link{obis_as_sf}} in particular \code{crs}}
 }
 \value{
 data table or sf object

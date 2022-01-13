@@ -7,7 +7,8 @@
 fetch_obis(
   x = read_mpa("Cuba"),
   combine = TRUE,
-  policy = c("convex hull", "strict")[1]
+  policy = c("convex hull", "strict")[1],
+  form = c("tibble", "sf")[1]
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ out if \code{policy} is 'strict'.}
 We fetch the convex hull to simplify the fetch, but that may allow some observations that are outside MPAs.
 If "convex hull" then we allow these to be returned.  If "strict" then we filter for those observations that are in
 the MPAs (in mean within or on the boundary).}
+
+\item{form}{character, either 'table' (default) or 'sf'}
 }
 \value{
 tibble of OBIS observations, possibly empty

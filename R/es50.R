@@ -1,33 +1,63 @@
+#' Compute ES50 for a sf table of MPAs
+#' 
+#' @export
+#' @param mpa sf table of MPAs, possibly with a column of 'obs'.  If that column
+#'   is missing we add it by calling \code{fetch_obis} which could take some time.
+#' @param verbose logical, output helpful messages
+#' @return the same mpa row with 'total_records', 'total_phyla', 'total_species', 
+#'   'es50_overall' and possibly 'obs' if it doesn't already exist
+mpa_es50 <- function(mpa, verbose = interactive()){
+  
+  if (!inherits(mpa, "sf")) stop("mpa input must be of 'sf' class")
+  
+  if (!("obs" %in% colnames(mpa))){
+    if (verbose) cat("fetching OBIS observation data\n")
+    obs <- fetch_obis(mpa, form = "sf")
+    mpa <- mpa_knit_obs(mps, obs)
+  }
+  
+  mpa |>
+    dplyr::group_by(.data$WDPAID) |>
+    dplyr::group_map(es50_base, .keep = TRUE, verbose = verbose) |>
+    dplyr::bind_rows()
+}
+
+
 #' Record number of records and attempt an overall es50 calculation
 #'
+#' @seealso \code{\link{mpa_es50}}
 #' @export
 #' @param mpa a single row of an mpa records table
 #' @param key the wdpaid of the mpa
-#' @param records an object containing obis records
 #' @param verbose logical, if TRUE output helpful messages
 #' @return the same mpa row with total_records, total_phyla, total_species, es50_overall
 #'  or NULL if an error occurs
-#'
-es50_base <- function(mpa, key, records, verbose = interactive()) {
+es50_base <- function(mpa, key, verbose = interactive()) {
   
-  if (verbose) cat(key$WDPAID[1], "\n")
+  if (verbose) cat("es50_base WDPAID: ", mpa$WDPAID[1], "\n")
   
   # which column is likely to contain geometry?
   geom_ix <- which_geometry(mpa)
   
-  # request the records based upon geometry column
-  records <- tryCatch(
-    {
-      robis::occurrence(geometry = sf::st_as_text(sf::st_convex_hull(mpa[[geom_ix[1]]])))
-    },
-    error = function(e){
-      message('Error in es50_base')
-      print(e)
-      return(NULL)
-    })
-    
+  if (!("obs" %in% colnames(mpa))){
+    if (verbose) cat("fetching OBIS observations...\n")
+    # request the records based upon geometry column
+    records <- tryCatch(
+      {
+        #robis::occurrence(geometry = sf::st_as_text(sf::st_convex_hull(mpa[[geom_ix[1]]])))
+        fetch_obis(mpa, form = 'sf')
+      },
+      error = function(e){
+        message('Error in es50_base')
+        print(e)
+        return(NULL)
+      })
+    mpa <- mpa_knit_obs(mpa, records)
+  } else {
+    records <- mpa$obs[[1]]
+  }
   
-  if (!rlang::is_empty(records)) {
+  if (!rlang::is_empty(records) && nrow(records) > 0) {
 
     if ("individualCount" %in% colnames(records)) {
 
@@ -61,9 +91,16 @@ es50_base <- function(mpa, key, records, verbose = interactive()) {
                       .before = geom_ix)
     }
 
+  } else {
+    mpa <- mpa %>%
+      dplyr::mutate(total_es50 = NA_real_,
+                    species_count_all = 0,
+                    phylum_count_all = 0,
+                    records_all = 0,
+                    .before = geom_ix)
   }
   
-  if (verbose) cat("\n")
+  #if (verbose) cat("\n")
   
   return(mpa)
 }

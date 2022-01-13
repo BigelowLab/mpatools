@@ -63,10 +63,12 @@ obis_as_sf <- function(x,
 #'    We fetch the convex hull to simplify the fetch, but that may allow some observations that are outside MPAs.
 #'    If "convex hull" then we allow these to be returned.  If "strict" then we filter for those observations that are in
 #'    the MPAs (in mean within or on the boundary).
+#' @param form character, either 'table' (default) or 'sf'
 #' @return tibble of OBIS observations, possibly empty
 fetch_obis <- function(x = read_mpa("Cuba"),
                        combine = TRUE, 
-                       policy = c("convex hull", "strict")[1]) {
+                       policy = c("convex hull", "strict")[1],
+                       form = c("tibble", "sf")[1]) {
 
 
   # Fetch one row (one MPA)
@@ -111,6 +113,7 @@ fetch_obis <- function(x = read_mpa("Cuba"),
     r <- obis_strict_match(x, r)
   }
 
+  if (tolower(form[1]) == "sf") r <- obis_as_sf(r)
   r
 }
 
@@ -120,7 +123,6 @@ fetch_obis <- function(x = read_mpa("Cuba"),
 #'
 #' @export
 #' @param name character, the name of the country to fetch
-#' @param name character, the name to save the MPA under (no spaces please!)
 #' @param overwrite logical, if TRUE allow existing files to be overwritten
 #' @param ... other arguments for obis_fetch_mpa
 #' @return tibble of OBIS observations, possibly empty
@@ -145,19 +147,19 @@ fetch_obis_country <- function(name = "Cuba",
 #' @param what character, by default all values are returned, but specify a subset with
 #'   a character vector of desired columns (variables)
 #' @param form character, either 'table' (default) or 'sf'
-#' @param ... further arguments for \code{\link{obis_as_sf}} in piarricular \code{crs}
+#' @param ... further arguments for \code{\link{obis_as_sf}} in particular \code{crs}
 #' @return data table or sf object
 read_obis <- function(name = "Cuba",
                       path = rappdirs::user_data_dir("robis"),
                       form  = c("table", "sf")[1],
                       what = "all",
                       ...){
-  filename <- file.path(path, sprintf("%s.csv.gz", name))
+  filename <- file.path(path, sprintf("%s.tsv.gz", name))
   if (!file.exists(filename)){
     stop("file not found:", filename)
   }
 
-  x <- data.table::fread(filename, quote="") %>%
+  x <- data.table::fread(filename, quote="", fill = TRUE) %>%
     dplyr::as_tibble()
 
   if (tolower(form[1]) == "sf"){
@@ -184,7 +186,7 @@ write_obis <- function(x, name,
     if(!dir.exists(path)) stop("robis output path doesn't exist:", path)
   }
 
-  filename <- file.path(path, sprintf("%s.csv.gz", name))
+  filename <- file.path(path, sprintf("%s.tsv.gz", name))
   if (file.exists(filename) && overwrite == FALSE){
     stop("file already exists:", filename)
   }

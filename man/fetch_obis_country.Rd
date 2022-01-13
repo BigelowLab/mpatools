@@ -7,7 +7,7 @@
 fetch_obis_country(name = "Cuba", overwrite = TRUE, ...)
 }
 \arguments{
-\item{name}{character, the name to save the MPA under (no spaces please!)}
+\item{name}{character, the name of the country to fetch}
 
 \item{overwrite}{logical, if TRUE allow existing files to be overwritten}
 

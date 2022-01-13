@@ -18,6 +18,38 @@ random_points <- function(x = read_mpa("Cuba"),
 }
 
 
+#' Given a set of MPAs and observations (like obis), add a list columns of 
+#' obs to each row of MPAs that contain observations. Rows of mpa that have no
+#' obs will have an empty tibble.
+#' 
+#' @export
+#' @param mpa sf table of MPAs
+#' @param obs sf table of observations, like OBIS
+#' @return sf table with added 'obs' column
+mpa_knit_obs <- function(mpa = read_mpa("Cuba"),
+                         obs = fetch_obis("Cuba", form = "sf")){
+  if (!inherits(obs, "sf")){
+    stop("obs must inherit from sf")
+  }
+  # a sparse list of indices - one element per row of mpa
+  ix <- sf::st_contains(mpa, obs)
+  geom_ix <- which_geometry(mpa)
+  mpa |>
+    dplyr::mutate(
+      obs = lapply(seq_along(ix),
+               function(i){
+                 if (length(ix[[i]])>0){
+                   obs |>
+                     dplyr::slice(ix[[i]])
+                 } else {
+                   obs |>
+                     dplyr::slice(0)
+                 }
+               }),
+      .before = geom_ix)
+}
+
+
 #' Given a set of MPAs and observations determine which observations belong to which MPA
 #'
 #' @export
