@@ -55,12 +55,17 @@ obis_as_sf <- function(x,
 #'
 #' @export
 #' @param x MPA sf object such as for a country
+#' @param combine logical, if TRUE then combine all MPAs into one convex polygon. This reduces the
+#'   network from many small ones to a single large one.  Use this to reduce the number of calls
+#'   to OBIS, the trade off is that the request may many records that are subsequently filtered
+#'   out if \code{policy} is 'strict'. 
 #' @param policy character either "convex hull" or "strict"
 #'    We fetch the convex hull to simplify the fetch, but that may allow some observations that are outside MPAs.
 #'    If "convex hull" then we allow these to be returned.  If "strict" then we filter for those observations that are in
 #'    the MPAs (in mean within or on the boundary).
 #' @return tibble of OBIS observations, possibly empty
 fetch_obis <- function(x = read_mpa("Cuba"),
+                       combine = TRUE, 
                        policy = c("convex hull", "strict")[1]) {
 
 
@@ -75,18 +80,33 @@ fetch_obis <- function(x = read_mpa("Cuba"),
       sf::st_as_text()
     r <- try(robis::occurrence(geometry = geo))
     if (inherits(r, "try-error")){
-      warning("error fetching obis datafir WDPAID:", x$WDPAID[1])
+      warning("error fetching obis data for WDPAID:", x$WDPAID[1])
       r <- NULL
     }
     r
   }
 
-  r <- x %>%
-    dplyr::rowwise() %>%
-    dplyr::group_map(get_one_mpa,
-                     .keep = TRUE) %>%
-    dplyr::bind_rows()
-
+  if (combine){
+    geo <- x %>%
+      sf::st_geometry() %>%
+      sf::st_combine() %>%
+      sf::st_convex_hull() %>%
+      sf::st_as_text()
+    
+    r <- try(robis::occurrence(geometry = geo))
+    if (inherits(r, "try-error")){
+      warning("error fetching obis data")
+      r <- dplyr::tibble()
+    }
+    
+  } else {
+    r <- x %>%
+      dplyr::rowwise() %>%
+      dplyr::group_map(get_one_mpa,
+                       .keep = TRUE) %>%
+      dplyr::bind_rows()
+  }
+  
   if (tolower(policy[1]) == "strict"){
     r <- obis_strict_match(x, r)
   }
@@ -137,7 +157,7 @@ read_obis <- function(name = "Cuba",
     stop("file not found:", filename)
   }
 
-  x <- data.table::fread(filename) %>%
+  x <- data.table::fread(filename, quote="") %>%
     dplyr::as_tibble()
 
   if (tolower(form[1]) == "sf"){
@@ -187,6 +207,22 @@ list_obis <- function(path = rappdirs::user_data_dir("robis"),
     ff <- gsub(ext, "", basename(ff), fixed = TRUE)
   }
   ff
+}
+
+
+#' Determine if the local storage contains a set of OBOS records by name(s)
+#' 
+#' @export
+#' @param name character, the name(s) of the country or 'global' that you have previously
+#'  downloaded
+#' @param ... arguments for \code{list_mpa}
+#' @return one or more logicals as a named vector
+has_obis <- function(name = c('Cuba', "Mongolia"),
+                    ...){
+  nn <- list_obis(...)
+  ix <- name %in% nn
+  names(ix) <- name
+  ix
 }
 
 

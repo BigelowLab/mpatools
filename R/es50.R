@@ -4,15 +4,29 @@
 #' @param mpa a single row of an mpa records table
 #' @param key the wdpaid of the mpa
 #' @param records an object containing obis records
+#' @param verbose logical, if TRUE output helpful messages
 #' @return the same mpa row with total_records, total_phyla, total_species, es50_overall
+#'  or NULL if an error occurs
 #'
-#'
-es50_base <- function(mpa, key, records) {
+es50_base <- function(mpa, key, records, verbose = interactive()) {
   
-  cat(key$WDPAID[1], "\n")
-
-  records <- robis::occurrence(geometry = sf::st_as_text(sf::st_convex_hull(mpa$geom)))
-
+  if (verbose) cat(key$WDPAID[1], "\n")
+  
+  # which column is likely to contain geometry?
+  geom_ix <- which_geometry(mpa)
+  
+  # request the records based upon geometry column
+  records <- tryCatch(
+    {
+      robis::occurrence(geometry = sf::st_as_text(sf::st_convex_hull(mpa[[geom_ix[1]]])))
+    },
+    error = function(e){
+      message('Error in es50_base')
+      print(e)
+      return(NULL)
+    })
+    
+  
   if (!rlang::is_empty(records)) {
 
     if ("individualCount" %in% colnames(records)) {
@@ -37,19 +51,19 @@ es50_base <- function(mpa, key, records) {
       dplyr::mutate(species_count_all = nrow(species_count),
                     phylum_count_all = nrow(phylum_count),
                     records_all = sum(species_count$x),
-                    .before=.data$geom)
+                    .before = geom_ix)
 
     if (nrow(species_count) >= 50){
       total_es50 = vegan::rarefy(as.integer(species_count$x),50)
-
+      geom_ix <- which_geometry(mpa)
       mpa <- mpa %>%
         dplyr::mutate(total_es50 = total_es50,
-                      .before=.data$geom)
+                      .before = geom_ix)
     }
 
   }
   
-  cat("\n")
+  if (verbose) cat("\n")
   
   return(mpa)
 }
@@ -62,16 +76,19 @@ es50_base <- function(mpa, key, records) {
 #' @param records an object containing obis records
 #' @param age numeric, age to compute es50 for
 #' @param step_size numeric of years in each step of analysis
+#' @param verbose logical, if TRUE output helpful messages
 #' @return single row table containing same columns as mpa but with added timeblock columns
 #'
 #' @export
-es50_timeblock <- function(mpa, key, records, age, step_size) {
+es50_timeblock <- function(mpa, key, records, age, step_size, verbose = interactive()) {
 
   if ((mpa$STATUS_YR + age) > format(as.Date(Sys.Date()), format="%Y")) {
-    cat(paste(mpa$WDPAID, "MPA is too young, age:", age, "\n", sep=" "))
+    if (verbose) cat(paste(mpa$WDPAID, "MPA is too young, age:", age, "\n", sep=" "))
 
+    geom_ix <- which_geometry(mpa)
+    
     mpa <- mpa %>%
-      dplyr::mutate("age_{age}" := NA, .before=.data$geom)
+      dplyr::mutate("age_{age}" := NA, .before = geom_ix)
 
     return(mpa)
   }
@@ -104,37 +121,44 @@ es50_timeblock <- function(mpa, key, records, age, step_size) {
                                FUN=sum)
 
     if (nrow(species_counts) >= 50) {
-      cat(paste(mpa$WDPAID, "calculating es50, age:", age, "\n", sep=" "))
+      if (verbose) cat(paste(mpa$WDPAID, "calculating es50, age:", age, "\n", sep=" "))
 
       es_50 <- vegan::rarefy(as.integer(species_counts$x), 50)
 
+      geom_ix <- which_geometry(mpa)
+      
+      # see https://www.tidyverse.org/blog/2020/02/glue-strings-and-tidy-eval/
       mpa <- mpa %>%
         dplyr::mutate("es50_age_{age}"    := es_50,
                       "species_age_{age}" := nrow(species_counts),
                       "phylum_age_{age}"  := nrow(phylum_counts),
                       "records_age_{age}" := sum(species_counts$x),
-                      .before=.data$geom)
+                      .before = geom_ix)
 
       return(mpa)
     } else {
-      cat(paste(mpa$WDPAID, "Less than 50 species records, age:", age, "\n", sep=" "))
+      if (verbose) cat(paste(mpa$WDPAID, "Less than 50 species records, age:", age, "\n", sep=" "))
 
+      geom_ix <- which_geometry(mpa)
+      
       mpa <- mpa %>%
         dplyr::mutate("es50_age_{age}"    := NA_real_,
                       "species_age_{age}" := NA_real_,
                       "phylum_age_{age}"  := NA_real_,
                       "records_age_{age}" := NA_real_,
-                      .before=.data$geom)
+                      .before = geom_ix)
     }
   } else {
-    cat(paste(mpa$WDPAID, "No records, age:", age, "\n", sep=" "))
+    if (verbose) cat(paste(mpa$WDPAID, "No records, age:", age, "\n", sep=" "))
 
+    geom_ix <- which_geometry(mpa)
+    
     mpa <- mpa %>%
       dplyr::mutate("es50_age_{age}"    := NA_real_,
                     "species_age_{age}" := NA_real_,
                     "phylum_age_{age}"  := NA_real_,
                     "records_age_{age}" := NA_real_,
-                    .before=.data$geom)
+                    .before = geom_ix)
   }
 
   return(mpa)

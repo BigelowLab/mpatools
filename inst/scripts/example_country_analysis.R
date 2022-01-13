@@ -1,32 +1,40 @@
 
 
-devtools::load_all()
+library(mpatools)
+library(dplyr)
 
-# Choose a country here
-country <- "South Africa"
+ages <- c(-20, 0, 20)
+time_step <- 20
 
-#If you have already stored the country's wdpa data on your machine, use read_country
-#Otherwise, use fetch country to download the wdpas. This step could take a few minutes
-mpa <- read_mpa(country)
-mpa <- fetch_mpa(country)
+# either read the locally stored dataset, or fetch if not stored locally
+country <- "Cuba"
+if (!has_mpa(country)) {
+  mpa <- fetch_mpa(country)
+} else {
+  mpa <- read_mpa(country)
+}
 
 
-#for testing on a small number of mpas, skip for running the analysis on a whole country
-mpa <- head(mpa, 5)
-
-#ages <- c(-20, 0, 20)
-#time_step <- 20
-
-xx <- mpa %>% 
+# for testing on a small number of mpas, skip for running the analysis on a whole country
+# we can't know ahead of time if we are going to get a column named 'geom' or 'geometry'
+# select only MPAs that are polygons (no points or other non-areal objects)
+# group by MPA
+# compute es_50 by group
+# bind results into one dataframe (one row per MPA)
+# drop the geometry to leave a bare table
+x <- mpa %>% 
+  head(5) %>%
   dplyr::select(WDPAID, 
                 NAME, 
                 IUCN_CAT,
                 REP_AREA,
                 REP_M_AREA, 
                 STATUS, 
-                STATUS_YR, 
-                geom) %>% 
-  dplyr::filter(sapply(.data$geom, function(x) inherits(x, "MULTIPOLYGON"))) %>% 
+                STATUS_YR)
+
+geom_ix <- which_geometry(x)
+x <- x %>%
+  dplyr::filter(sapply(x[[geom_ix]], function(x) inherits(x, "MULTIPOLYGON"))) %>% 
   dplyr::group_by(WDPAID) %>% 
   dplyr::group_map(es50_base, .keep=TRUE) %>% 
   #dplyr::group_map(es50_timeblock, ages, .keep=TRUE) %>% 
