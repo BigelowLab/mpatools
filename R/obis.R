@@ -63,11 +63,14 @@ obis_as_sf <- function(x,
 #'    We fetch the convex hull to simplify the fetch, but that may allow some observations that are outside MPAs.
 #'    If "convex hull" then we allow these to be returned.  If "strict" then we filter for those observations that are in
 #'    the MPAs (in mean within or on the boundary).
+#' @param counts character, either "at_least_one" which forces \code{individualCount} to be at least 1
+#'   or 'as_is' which allows for NA values.  Philosophy, if it is observed there must have been at least one. 
 #' @param form character, either 'table' (default) or 'sf'
 #' @return tibble of OBIS observations, possibly empty
 fetch_obis <- function(x = read_mpa("Cuba"),
                        combine = TRUE, 
                        policy = c("convex hull", "strict")[1],
+                       counts = c("as_is", "at_least_one")[2],
                        form = c("tibble", "sf")[1]) {
 
 
@@ -107,6 +110,12 @@ fetch_obis <- function(x = read_mpa("Cuba"),
       dplyr::group_map(get_one_mpa,
                        .keep = TRUE) %>%
       dplyr::bind_rows()
+  }
+  
+  if ((nrow(r) > 0) && (tolower(counts[1]) == 'at_least_one')){
+    r$individualCount <- as.integer(r$individualCount)
+    ix <- is.na(r$individualCount)
+    r$individualCount[ix] <- 1L
   }
   
   if (tolower(policy[1]) == "strict"){
