@@ -22,8 +22,7 @@ is missing we add it by calling \code{fetch_obis} which could take some time.}
 \item{verbose}{logical, output helpful messages}
 }
 \value{
-the same mpa row with 'total_records', 'total_phyla', 'total_species', 
-  'es50_overall' and possibly 'obs' if it doesn't already exist
+the same mpa row with 'diversity' column, and possibly 'obs' if it doesn't already exist
 }
 \description{
 Compute ES50 at timesteps for a sf table of MPAs

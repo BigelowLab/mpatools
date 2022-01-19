@@ -6,7 +6,7 @@
 #' @param verbose logical, output helpful messages
 #' @return the same mpa row with 'total_records', 'total_phyla', 'total_species', 
 #'   'es50_overall' and possibly 'obs' if it doesn't already exist
-mpa_es50 <- function(mpa, verbose = interactive()){
+mpa_es50 <- function(mpa = read_mpa("Cuba"), verbose = interactive()){
   
   if (!inherits(mpa, "sf")) stop("mpa input must be of 'sf' class")
   
@@ -57,7 +57,7 @@ mpa_timeblock <- function(mpa = read_mpa("Cuba"),
   
   geom_ix <- which_geometry(mpa)
   mpa |>
-    dplyr::mutate(diversity = es, .before = geom_ix)
+    dplyr::mutate(diversity = es, .before = dplyr::all_of(geom_ix))
 }
 
 
@@ -259,14 +259,14 @@ es50_base <- function(mpa, key, verbose = interactive()) {
       dplyr::mutate(species_count_all = nrow(species_count),
                     phylum_count_all = nrow(phylum_count),
                     records_all = sum(species_count$x),
-                    .before = geom_ix)
+                    .before = dplyr::all_of(geom_ix))
 
     if (nrow(species_count) >= 50){
       total_es50 = vegan::rarefy(as.integer(species_count$x),50)
       geom_ix <- which_geometry(mpa)
       mpa <- mpa %>%
         dplyr::mutate(total_es50 = total_es50,
-                      .before = geom_ix)
+                      .before = dplyr::all_of(geom_ix))
     }
 
   } else {
@@ -275,7 +275,7 @@ es50_base <- function(mpa, key, verbose = interactive()) {
                     species_count_all = 0,
                     phylum_count_all = 0,
                     records_all = 0,
-                    .before = geom_ix)
+                    .before = dplyr::all_of(geom_ix))
   }
   
   #if (verbose) cat("\n")
@@ -324,7 +324,7 @@ es50_timeblock <- function(mpa, key,
     geom_ix <- which_geometry(mpa)
     
     mpa <- mpa %>%
-      dplyr::mutate("age_{age}" := NA, .before = geom_ix)
+      dplyr::mutate("age_{age}" := NA, .before = dplyr::all_of(geom_ix))
 
     return(mpa)
   }
@@ -371,7 +371,7 @@ es50_timeblock <- function(mpa, key,
                       "species_age_{age}" := nrow(species_counts),
                       "phylum_age_{age}"  := nrow(phylum_counts),
                       "records_age_{age}" := sum(species_counts$x),
-                      .before = geom_ix)
+                      .before = dplyr::all_of(geom_ix))
 
       return(mpa)
     } else {
@@ -384,7 +384,7 @@ es50_timeblock <- function(mpa, key,
                       "species_age_{age}" := NA_real_,
                       "phylum_age_{age}"  := NA_real_,
                       "records_age_{age}" := NA_real_,
-                      .before = geom_ix)
+                      .before = dplyr::all_of(geom_ix))
     }
   } else {
     if (verbose) cat(paste(mpa$WDPAID, "No records, age:", age, "\n", sep=" "))
@@ -396,7 +396,7 @@ es50_timeblock <- function(mpa, key,
                     "species_age_{age}" := NA_real_,
                     "phylum_age_{age}"  := NA_real_,
                     "records_age_{age}" := NA_real_,
-                    .before = geom_ix)
+                    .before = dplyr::all_of(geom_ix))
   }
 
   return(mpa)

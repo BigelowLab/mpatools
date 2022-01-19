@@ -46,7 +46,7 @@ mpa_knit_obs <- function(mpa = read_mpa("Cuba"),
                      dplyr::slice(0)
                  }
                }),
-      .before = geom_ix)
+      .before = dplyr::all_of(geom_ix))
 }
 
 

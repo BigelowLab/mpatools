@@ -4,7 +4,7 @@
 \alias{mpa_es50}
 \title{Compute ES50 for a sf table of MPAs}
 \usage{
-mpa_es50(mpa, verbose = interactive())
+mpa_es50(mpa = read_mpa("Cuba"), verbose = interactive())
 }
 \arguments{
 \item{mpa}{sf table of MPAs, possibly with a column of 'obs'.  If that column
