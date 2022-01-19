@@ -7,7 +7,9 @@
 fetch_obis(
   x = read_mpa("Cuba"),
   combine = TRUE,
-  policy = c("convex hull", "strict")[1]
+  policy = c("convex hull", "strict")[1],
+  counts = c("as_is", "at_least_one")[2],
+  form = c("tibble", "sf")[1]
 )
 }
 \arguments{
@@ -22,6 +24,11 @@ out if \code{policy} is 'strict'.}
 We fetch the convex hull to simplify the fetch, but that may allow some observations that are outside MPAs.
 If "convex hull" then we allow these to be returned.  If "strict" then we filter for those observations that are in
 the MPAs (in mean within or on the boundary).}
+
+\item{counts}{character, either "at_least_one" which forces \code{individualCount} to be at least 1
+or 'as_is' which allows for NA values.  Philosophy, if it is observed there must have been at least one.}
+
+\item{form}{character, either 'table' (default) or 'sf'}
 }
 \value{
 tibble of OBIS observations, possibly empty
